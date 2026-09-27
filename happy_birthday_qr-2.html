@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{background:#101014;color:white;font-family:Arial,sans-serif;display:grid;place-items:center}
+.scene{position:relative;width:100%;height:100%;display:grid;place-items:center}
+.message{position:relative;z-index:2;text-align:center;font-weight:700;letter-spacing:5px;font-size:clamp(16px,5vw,25px);line-height:1.55}
+.line{display:block;white-space:nowrap}
+.letter{display:inline-block;position:relative;color:var(--c);text-shadow:0 0 8px currentColor;animation:twinkle 1.4s ease-in-out infinite alternate}
+@keyframes twinkle{to{filter:brightness(1.5);transform:translateY(-2px)}}
+.balloon{position:absolute;left:var(--x);top:var(--y);width:13px;height:17px;border-radius:50% 50% 45% 45%;background:var(--c);box-shadow:inset -3px -3px 5px #0004,0 0 8px var(--c);opacity:0;z-index:3;animation:rise var(--dur) ease-in forwards;animation-delay:var(--delay)}
+.balloon:before{content:"";position:absolute;bottom:-3px;left:5px;border-left:2px solid var(--c);border-right:2px solid var(--c);border-bottom:3px solid var(--c);width:0;height:0}
+.balloon:after{content:"";position:absolute;top:16px;left:6px;height:var(--string);border-left:1px solid #aaa;transform-origin:top;transform:rotate(5deg)}
+@keyframes rise{0%{opacity:0;transform:translateY(35px) scale(.5)}10%{opacity:1}100%{opacity:1;transform:translate(var(--drift),-115vh) rotate(14deg)}}
+.spark{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--c);opacity:0;animation:spark 4s linear infinite;animation-delay:var(--delay)}
+@keyframes spark{0%,100%{opacity:0;transform:translateY(0)}30%{opacity:.8}80%{opacity:0;transform:translateY(-70px)}}
+</style>
+</head>
+<body>
+<div class="scene" id="scene">
+  <div class="message" id="message">
+    <span class="line" id="l1"></span>
+    <span class="line" id="l2"></span>
+    <span class="line" id="l3"></span>
+  </div>
+</div>
+<script>
+const palette=['#ff4da6','#00d9ff','#b8ff35','#ffd34d','#b68cff','#45f08b'];
+const lines=[['HAPPY','l1'],['BIRTHDAY','l2'],['TO YOU','l3']];
+lines.forEach(([word,id])=>{
+ const el=document.getElementById(id);
+ [...word].forEach((ch,i)=>{
+  const s=document.createElement('span');s.className='letter';s.textContent=ch===' '?' ':ch;
+  s.style.setProperty('--c',palette[(i+id.length)%palette.length]);
+  s.style.animationDelay=(i*.12)+'s';el.appendChild(s);
+ });
+});
+const scene=document.getElementById('scene');
+function launch(){
+ const letters=[...document.querySelectorAll('.letter')];
+ letters.forEach((letter,i)=>{
+  const r=letter.getBoundingClientRect();
+  const b=document.createElement('div');b.className='balloon';
+  b.style.setProperty('--x',(r.left+r.width/2-6)+'px');
+  b.style.setProperty('--y',(r.top-26)+'px');
+  b.style.setProperty('--c',palette[i%palette.length]);
+  b.style.setProperty('--dur',(5+Math.random()*3)+'s');
+  b.style.setProperty('--delay',(i*.12)+'s');
+  b.style.setProperty('--drift',((Math.random()-.5)*180)+'px');
+  b.style.setProperty('--string',(14+Math.random()*12)+'px');
+  scene.appendChild(b);
+  letter.style.transition='transform 5s ease, opacity 1s ease';
+  setTimeout(()=>{
+   letter.style.transform=`translate(${(Math.random()-.5)*240}px, -${180+Math.random()*260}px) rotate(${(Math.random()-.5)*70}deg)`;
+   letter.style.opacity='0';
+  },i*120+350);
+  setTimeout(()=>b.remove(),9500+i*120);
+ });
+ setTimeout(()=>{
+  document.querySelectorAll('.letter').forEach((l)=>{l.style.transition='';l.style.transform='';l.style.opacity='1'});
+ },10000);
+}
+setTimeout(launch,2500);
+setInterval(launch,13000);
+for(let i=0;i<28;i++){
+ const s=document.createElement('i');s.className='spark';
+ s.style.left=Math.random()*100+'%';s.style.top=(20+Math.random()*65)+'%';
+ s.style.setProperty('--c',palette[i%palette.length]);s.style.setProperty('--delay',Math.random()*4+'s');
+ scene.appendChild(s);
+}
+</script>
+</body>
+</html>
